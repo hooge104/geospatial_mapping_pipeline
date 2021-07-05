@@ -10,4 +10,4 @@ A fully automated geospatial pipeline.
 6. Recommended: when access to Google Cloud Storage is available: install gsutil
 
 ## Executing the script
-The GMP is available as a executable python script, and can be run in the command line. Simply executue the script and sit back. 
+The GMP is available as a executable python script, and can be run in the command line.
