@@ -27,5 +27,3 @@ To automate the upload process, we routinely use GCS but as it's a paid service 
 This script is still work in progress and might contain mistakes. If you spot any let us know! We're also continously improving the workflow and developing new 'modules'. Watch this space for updates. 
 
 We are aware that there are some steps that not necessarily follow GEE 'best practices'. Usually this is the result of a trade-off between computation time and flexibility. 
-
-When using 
