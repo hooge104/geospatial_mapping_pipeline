@@ -7,7 +7,7 @@ A fully automated geospatial pipeline.
 3. Install the GEE Python API using pip or conda. See details on https://developers.google.com/earth-engine/guides/python_install
 4. Authenticate the GEE Python API
 5. Install the following packages: `pandas`, `numpy`, `subprocess`, `time`, `datetime`, `scipy`, `sklearn`, `itertools`, `pathlib`, `math`, `matplotlib`, `tqdm` using your package manager
-6. Recommended: when access to Google Cloud Storage is available: install gsutil
+6. Recommended: when access to Google Cloud Storage is available: install `gsutil`
 
 ## Running the pipeline
 The GMP is available as a executable python script, and can be run in the command line.
