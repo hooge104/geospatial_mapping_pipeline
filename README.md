@@ -21,8 +21,7 @@ The GMP is available as a executable python script, and can be run in the comman
 5. Execute the script
 
 ## Some notes in case Google Cloud Storage is not available
-To automate the upload process, we routinely use GCS but as it's a paid service this might not be available to everyone. In case you want to bypass these steps, it's probably the easiest to manually upload the generated csv files (i.e., the training data file and the bootstrap samples) using the GEE web browser UI. You'll need to remove some lines in the script where `gsutil` is called, after which it will probably complain that the file can't be found. After uploading the file (make sure to give the GEE FeatureCollection the correct name) re-run the script (a couple of times).
-
+To automate the upload process, we routinely use GCS but as it's a paid service this might not be available to everyone. In case you want to bypass these steps, it's probably the easiest to manually upload the generated csv files (i.e., the training data file and the bootstrap samples) using the GEE web browser UI. You'll need to remove some lines in the script where `gsutil` is called, after which it will probably complain that the file can't be found. After uploading the file (make sure to give the GEE FeatureCollection the correct name) re-run the script (possibly a number of times).
 
 ## Disclaimer
 This script is still work in progress and might contain mistakes. If you spot any let us know! We're also continously improving the workflow and developing new 'modules'. Watch this space for updates. 
