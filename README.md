@@ -1,7 +1,7 @@
 # Geospatial Mapping Pipeline
 A fully automated geospatial pipeline for ecologists.
 
-## Citation info
+## Citing this work
 When using (part of) this modeling workflow, please cite Van den Hoogen et al., BioRxiv (2021). A geospatial mapping pipeline for ecologists, doi: xxx
 
 ## How to get started
