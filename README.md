@@ -9,7 +9,7 @@ A fully automated geospatial pipeline.
 5. Install the following modules: `pandas`, `numpy`, `subprocess`, `time`, `datetime`, `scipy`, `sklearn`, `itertools`, `pathlib`, `math`, `matplotlib`, `tqdm`
 6. Recommended: when access to Google Cloud Storage is available: install gsutil
 
-## Executing the script
+## Running the pipeline
 The GMP is available as a executable python script, and can be run in the command line.
 
 1. Create a folder on your local machine, to hold your project data
