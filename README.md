@@ -13,7 +13,7 @@ A fully automated geospatial pipeline for ecologists.
 The GMP is available as a executable python script, and can be run in the command line.
 
 1. Create a folder on your local machine, to hold your project data
-2. Place your data, as a csv file into this folder. This file should contain a column holding the response variable (of course...), and latitude/longitude. Default CRS: WGS84, EPSG:4326
+2. Place your data, as a csv file into this folder. This file should contain a column holding the response variable (of course...), and latitude+longitude. Default CRS: WGS84 EPSG:4326
 3. Place the script into this folder and configure your project-specific details in the top part of the script.
 4. Make sure to place the correct path of where `ee` and `gsutil` are installed on your local machine
 5. Execute the script
