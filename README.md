@@ -1,5 +1,5 @@
 # Geospatial Mapping Pipeline
-A fully automated geospatial pipeline. 
+A fully automated geospatial pipeline for ecologists.
 
 ## How to get started
 1. Sign up for a GEE account on https://signup.earthengine.google.com
@@ -7,7 +7,7 @@ A fully automated geospatial pipeline.
 3. Install the GEE Python API using pip or conda. See details on https://developers.google.com/earth-engine/guides/python_install
 4. Authenticate the GEE Python API
 5. Install the following packages: `pandas`, `numpy`, `subprocess`, `time`, `datetime`, `scipy`, `sklearn`, `itertools`, `pathlib`, `math`, `matplotlib`, `tqdm` using your package manager
-6. Recommended (when access to Google Cloud Storage is available) install `gsutil`
+6. Recommended (when access to Google Cloud Storage is available): install `gsutil`
 
 ## Running the pipeline
 The GMP is available as a executable python script, and can be run in the command line.
@@ -18,5 +18,5 @@ The GMP is available as a executable python script, and can be run in the comman
 4. Make sure to place the correct path of where `ee` and `gsutil` are installed on your local machine
 5. Execute the script
 
-### Note when not Google Cloud Storage is not avaiable
+## Some notes in case Google Cloud Storage is not avaiable
 To automate the upload process, we routinely use GCS but as it's a paid service this might not be available to everyone. In case you want to bypass these steps, it's probably the easiest to manually upload the generated csv files (i.e., the training data file and the bootstrap samples) using the GEE web browser UI. You'll need to remove some lines in the script where `gsutil` is called, after which it will probably complain that the file can't be found. After uploading the file (make sure to give the GEE FeatureCollection the correct name) re-run the script.
