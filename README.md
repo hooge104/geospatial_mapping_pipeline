@@ -2,7 +2,7 @@
 A fully automated geospatial pipeline for ecologists.
 
 ## Citing this work
-When using (part of) this modeling workflow, please cite Van den Hoogen et al., BioRxiv (2021). A geospatial mapping pipeline for ecologists, doi: https://doi.org/10.1101/2021.07.07.451145
+When using (part of) this modeling workflow, please cite Van den Hoogen et al., BioRxiv (2021). A geospatial mapping pipeline for ecologists, doi: 10.1101/2021.07.07.451145
 
 ## How to get started
 1. Sign up for a GEE account on https://signup.earthengine.google.com
