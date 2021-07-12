@@ -21,7 +21,7 @@ The GMP is available as a executable python script, and can be run in the comman
 5. Execute the script
 
 ## What to do next - how to visualise or export the results
-When the script is ready, two GEE tasks started. When these have completed, you can either visualise them directly in the web GUI of GEE, or export them to Google Drive or Google Cloud Storage. Some code snippets on how to visualise and export GEE assets below.
+When the script is ready, two GEE tasks started. When these have completed, you can either visualise them directly in the web GUI of GEE, or export them to Google Drive or Google Cloud Storage. Some code snippets (js) on how to visualise and export GEE assets below.
 
 ### Visualising a map on GEE
 ```
