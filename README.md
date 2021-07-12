@@ -51,7 +51,9 @@ Export.image.toDrive({
     maxPixels: 1e13
 });
 ```
-To export a FeatureCollection, use `Export.table.toDrive`. 
+An image is exported to Google Drive as a geotiff (.tif) by default. Use your favorite GIS software to visualise this file and create publication-ready figures. 
+
+To export a FeatureCollection (as a csv), use `Export.table.toDrive`.
 
 ## Some notes in case Google Cloud Storage is not available
 To automate the upload process, we routinely use GCS but as it's a paid service this might not be available to everyone. In case you want to bypass these steps, it's probably the easiest to manually upload the generated csv files (i.e., the training data file and the bootstrap samples) using the GEE web browser UI. You'll need to remove some parts of the script where `gsutil` is called. Just run the script until it complains that one of the assets can't be found, manually upload the file (make sure to give the GEE FeatureCollection the correct name and path) and re-run the script. You'll have to repeat this process a number of times; for the upload of the raw data and for the upload of the bootstrap subsamples. 
