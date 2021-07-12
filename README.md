@@ -21,7 +21,7 @@ The GMP is available as a executable python script, and can be run in the comman
 5. Execute the script
 
 ## What to do next - how to visualise or export the results
-When the script is ready, two GEE tasks started. When these have completed, you can either visualise them directly in the web GUI of GEE, or export them to Google Drive or Google Cloud Storage.
+When the script is ready, two GEE tasks started. When these have completed, you can either visualise them directly in the web GUI of GEE, or export them to Google Drive or Google Cloud Storage. Some code snippets on how to visualise and export GEE assets below.
 
 ### Visualising a map on GEE
 ```
@@ -36,7 +36,7 @@ var viridis = ["440154", "472D7B", "3B528B", "2C728E", "21908C", "27AD81", "5DC8
 Map.addLayer(prediction, {min:0,max:1000,palette:viridis}, 'Predicted image')
 ```
 
-### Exporting an Asset from GEE to Google Drive
+### Exporting an image from GEE to Google Drive
 ```
 // Define export boundaries (this is a global geometry; modify to your needs, or draw a geometry using the shape/rectagnle tool on GEE)
 var exportingGeometry = ee.Geometry.Polygon([[[-180, 88], [180, 88], [180, -88], [-180, -88]]], null, false);
@@ -51,6 +51,7 @@ Export.image.toDrive({
     maxPixels: 1e13
 });
 ```
+To export a FeatureCollection, use `Export.table.toDrive`. 
 
 ## Some notes in case Google Cloud Storage is not available
 To automate the upload process, we routinely use GCS but as it's a paid service this might not be available to everyone. In case you want to bypass these steps, it's probably the easiest to manually upload the generated csv files (i.e., the training data file and the bootstrap samples) using the GEE web browser UI. You'll need to remove some parts of the script where `gsutil` is called. Just run the script until it complains that one of the assets can't be found, manually upload the file (make sure to give the GEE FeatureCollection the correct name and path) and re-run the script. You'll have to repeat this process a number of times; for the upload of the raw data and for the upload of the bootstrap subsamples. 
