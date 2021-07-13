@@ -586,10 +586,10 @@ else:
 	grid_search_results = ee.FeatureCollection('users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'grid_search_results')
 
 	# Get top model name
-	bestModelName = grid_search_results.limit(1, sort_acc_prop', False).first().get('cName')
+	bestModelName = grid_search_results.limit(1, sort_acc_prop, False).first().get('cName')
 
 	# Get top 10 models
-	top_10Models = grid_search_results.limit(10, sort_acc_prop', False).aggregate_array('cName')
+	top_10Models = grid_search_results.limit(10, sort_acc_prop, False).aggregate_array('cName')
 
 	# Write to file
 	GEE_FC_to_pd(grid_search_results).sort_values(sort_acc_prop, ascending = False).to_csv('output/'+classProperty+'_grid_search_results.csv')
