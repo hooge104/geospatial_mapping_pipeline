@@ -481,7 +481,7 @@ else:
 
 	# Log transform classProperty, if specified
 	if log_transform_classProperty == True:
-		fc_agg = fc_agg.filter(ee.Filter.gte(classProperty, 0)).map(lambda f: f.set(classProperty, ee.Number(f.get(classProperty)).log()))
+		fc_agg = fc_agg.filter(ee.Filter.gt(classProperty, 0)).map(lambda f: f.set(classProperty, ee.Number(f.get(classProperty)).log()))
 
 	# Convert biome column to int
 	fc_agg = fc_agg.map(lambda f: f.set(stratificationVariableString, ee.Number(f.get(stratificationVariableString)).toInt()))
