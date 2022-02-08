@@ -833,7 +833,7 @@ minDict = ee.Dictionary.fromLists(covariateList,minValuesWNulls)
 minImage = minDict.toImage()
 maxImage = maxDict.toImage()
 
-totalBandsBinary = compositeToClassify.gte(minImage.select(covariateList)).lt(maxImage.select(covariateList))
+totalBandsBinary = compositeToClassify.gte(minImage.select(covariateList)).And(compositeToClassify.lte(maxImage.select(covariateList)))
 univariate_int_ext_image = totalBandsBinary.reduce('sum').divide(compositeToClassify.bandNames().length()).rename('univariate_pct_int_ext')
 
 ##################################################################################################################################################################
