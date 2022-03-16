@@ -685,82 +685,55 @@ print('Variable importance metrics complete! Moving on...')
 ##################################################################################################################################################################
 # Bootstrapping
 ##################################################################################################################################################################
-preppedCollection = pd.read_csv('output/'+classProperty+'_training_data.csv')[covariateList + [stratificationVariableString] + [classProperty]]
 
 # Input the number of points to use for each bootstrap model: equal to number of observations in training dataset
 bootstrapModelSize = preppedCollection.shape[0]
 
-# Create a folder to house the bootstrapped feature collection
-# Turn the folder string into an assetID and perform the creation
-assetIDToCreate_Folder = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapCollFolder
-print(assetIDToCreate_Folder,'being created...')
+# Create an empty dataframe
+stratSample = preppedCollection.head(0)
 
-# Create the image collection before classifying each of the bootstrap images
-subprocess.run(bashCommandList_CreateFolder+[assetIDToCreate_Folder])
-while any(x in subprocess.run(bashCommandList_Detect+[assetIDToCreate_Folder], stdout=subprocess.PIPE).stdout.decode('utf-8') for x in stringsOfInterest):
-	print('Waiting for asset to be created...')
+# Bootstrap sampling, add to df
+for n in seedsToUseForBootstrapping:
+	# Perform the subsetting
+	# stratSample = preppedCollection.groupby(stratificationVariableString, group_keys=False).apply(lambda x: x.sample(n=int(round((strataDict.get(x.name)/100)*bootstrapModelSize)), replace=True, random_state=n))
+	sampleToConcat = preppedCollection.groupby(stratificationVariableString, group_keys=False).apply(lambda x: x.sample(n=int(round((strataDict.get(x.name)/100)*bootstrapModelSize)), replace=True, random_state=n))
+	sampleToConcat['bootstrapIteration'] = n
+	stratSample = pd.concat([stratSample, sampleToConcat])
+
+# Format the title of the CSV and export it to a holding location
+fullLocalPath = holdingFolder+'/'+bootstrapSamples+'.csv'
+stratSample.to_csv(holdingFolder+'/'+bootstrapSamples+'.csv',index=False)
+
+# Format the bash call to upload the files to the Google Cloud Storage bucket
+gsutilBashUploadList = [bashFunctionGSUtil]+arglist_preGSUtilUploadFile+[fullLocalPath]+[formattedBucketOI]
+subprocess.run(gsutilBashUploadList)
+print(bootstrapSamples+' uploaded to a GCSB!')
+
+# Wait for the GSUTIL uploading process to finish before moving on
+while not all(x in subprocess.run([bashFunctionGSUtil,'ls',formattedBucketOI],stdout=subprocess.PIPE).stdout.decode('utf-8') for x in [bootstrapSamples]):
+	print('Not everything is uploaded...')
+	time.sleep(5)
+print('Everything is uploaded moving on...')
+
+# Upload the file into Earth Engine as a table asset
+assetIDForCVAssignedColl = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapSamples
+earthEngineUploadTableCommands = [bashFunction_EarthEngine]+arglist_preEEUploadTable+[assetIDStringPrefix+assetIDForCVAssignedColl]+[formattedBucketOI+'/'+bootstrapSamples+'.csv']+arglist_postEEUploadTable
+subprocess.run(earthEngineUploadTableCommands)
+print('Upload to EE queued!')
+
+# Wait for a short period to ensure the command has been received by the server
+time.sleep(normalWaitTime/2)
+
+# !! Break and wait
+count = 1
+while count >= 1:
+	taskList = [str(i) for i in ee.batch.Task.list()]
+	subsetList = [s for s in taskList if classProperty in s]
+	subsubList = [s for s in subsetList if any(xs in s for xs in ['RUNNING', 'READY'])]
+	count = len(subsubList)
+	print(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'), 'Number of running jobs:', count)
 	time.sleep(normalWaitTime)
-print('Asset created!')
-
-# Sleep to allow the server time to receive incoming requests
-time.sleep(normalWaitTime)
-
-# Check if bootstrap collections are present; remove from list if present
-files_present = subprocess.run(bashCommandList_ls+[assetIDToCreate_Folder], stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
-
-if len(files_present) > 1:
-	# Last item in list is an empty string
-	del files_present[-1]
-	# Fetch seed from fileName, remove trailing zeros
-	seedsToRemove = [int(seed[-3:].lstrip('0')) for seed in files_present]
-
-	seedsToUseForBootstrapping = [seed for seed in seedsToUseForBootstrapping if seed not in seedsToRemove]
-
-# Perform bootstrap sampling and upload to GCSB > GEE
-if len(seedsToUseForBootstrapping) > 0:
-	# Run a for loop to create multiple bootstrap iterations and upload them to the Google Cloud Storage Bucket
-	# Create an empty list to store all of the file name strings being uploaded (for later use)
-	fileNameList = []
-	for n in seedsToUseForBootstrapping:
-		# Perform the subsetting
-		stratSample = preppedCollection.groupby(stratificationVariableString, group_keys=False).apply(lambda x: x.sample(n=int(round((strataDict.get(x.name)/100)*bootstrapModelSize)), replace=True, random_state=n))
-
-		# Format the title of the CSV and export it to a holding location
-		titleOfBootstrapCSV = fileNameHeader+str(n).zfill(3)
-		fileNameList.append(titleOfBootstrapCSV)
-		fullLocalPath = outputFolder+'/'+titleOfBootstrapCSV+'.csv'
-		stratSample.to_csv(outputFolder+'/'+titleOfBootstrapCSV+'.csv',index=False)
-
-		# Format the bash call to upload the files to the Google Cloud Storage bucket
-		gsutilBashUploadList = [bashFunctionGSUtil]+arglist_preGSUtilUploadFile+[fullLocalPath]+[formattedBucketOI]
-		subprocess.run(gsutilBashUploadList)
-		print(titleOfBootstrapCSV+' uploaded to a GCSB!')
-
-	# Wait for the GSUTIL uploading process to finish before moving on
-	while not all(x in subprocess.run([bashFunctionGSUtil,'ls',formattedBucketOI],stdout=subprocess.PIPE).stdout.decode('utf-8') for x in fileNameList):
-		print('Not everything is uploaded...')
-		time.sleep(5)
-	print('Everything is uploaded moving on...')
-
-	# Loop through the file names and upload each of them to Earth Engine
-	for f in fileNameList:
-		assetIDForBootstrapColl = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapCollFolder
-		gsStorageFileLocation = formattedBucketOI
-		earthEngineUploadTableCommands = [bashFunction_EarthEngine]+arglist_preEEUploadTable+[assetIDStringPrefix+assetIDForBootstrapColl+'/'+f]+[gsStorageFileLocation+'/'+f+'.csv']+arglist_postEEUploadTable
-		subprocess.run(earthEngineUploadTableCommands)
-		print(f+' ingestion started!')
-	print('All files are being ingested.')
-
-	# !! Break and wait
-	count = 1
-	while count >= 1:
-		taskList = [str(i) for i in ee.batch.Task.list()]
-		subsetList = [s for s in taskList if classProperty in s]
-		subsubList = [s for s in subsetList if any(xs in s for xs in ['RUNNING', 'READY'])]
-		count = len(subsubList)
-		print(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'), 'Number of running jobs:', str(count).zfill(2), end = '\r')
-		time.sleep(normalWaitTime)
-	print('Moving on...')
+print('Moving on...')
 
 # Load the best model from the classifier list
 classifierToBootstrap = ee.Classifier(ee.Feature(ee.FeatureCollection(classifierList).filterMetadata('cName','equals',bestModelName).first()).get('c'))
@@ -771,11 +744,11 @@ fcList = []
 for n in seedsToUseForBootstrapping:
 
 	# Format the title of the CSV and export it to a holding location
-	titleOfColl = fileNameHeader+str(n).zfill(3)
-	collectionPath = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapCollFolder+'/'+titleOfColl
+	# titleOfColl = bootstrapSamples+str(n).zfill(3)
+	collectionPath = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapSamples
 
 	# Load the collection from the path
-	fcToTrain = ee.FeatureCollection(collectionPath)
+	fcToTrain = ee.FeatureCollection(collectionPath).filter(ee.Filter.eq('bootstrapIteration', n))
 
 	# Append fc to list
 	fcList.append(fcToTrain)
