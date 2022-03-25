@@ -170,11 +170,8 @@ bootstrapIterations = 100
 # Generate the seeds for bootstrapping
 seedsToUseForBootstrapping = list(range(1, bootstrapIterations+1))
 
-# Input the name of a folder used to hold the bootstrap collections
-bootstrapCollFolder = 'Bootstrap_Collections'
-
-# Input the header text that will name each bootstrapped dataset
-fileNameHeader = classProperty+'BootstrapColl_'
+# Input the header text that will name the bootstrapped dataset
+bootstrapSamples = classProperty+'_bootstrapSamples'
 
 # Stratification inputs
 # Write the name of the variable used for stratification
