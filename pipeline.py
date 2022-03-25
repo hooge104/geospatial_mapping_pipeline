@@ -409,7 +409,7 @@ else:
 
 	# Drop NAs
 	preppedCollection = rawPointCollection.dropna(how='any')
-	print('Number of observations after dropping NAs', rawPointCollection.shape[0])
+	print('Number of observations after dropping NAs', preppedCollection.shape[0])
 
 	# Write the CSV to disk and upload it to Earth Engine as a Feature Collection
 	localPathToCVAssignedData = holdingFolder+'/'+titleOfCSVWithCVAssignments+'.csv'
