@@ -682,18 +682,18 @@ print('Variable importance metrics complete! Moving on...')
 ##################################################################################################################################################################
 # Bootstrapping
 ##################################################################################################################################################################
+training_data = 'output/'+classProperty+'_training_data.csv'
 
 # Input the number of points to use for each bootstrap model: equal to number of observations in training dataset
-bootstrapModelSize = preppedCollection.shape[0]
+bootstrapModelSize = training_data.shape[0]
 
 # Create an empty dataframe
-stratSample = preppedCollection.head(0)
+stratSample = training_data.head(0)
 
 # Bootstrap sampling, add to df
 for n in seedsToUseForBootstrapping:
 	# Perform the subsetting
-	# stratSample = preppedCollection.groupby(stratificationVariableString, group_keys=False).apply(lambda x: x.sample(n=int(round((strataDict.get(x.name)/100)*bootstrapModelSize)), replace=True, random_state=n))
-	sampleToConcat = preppedCollection.groupby(stratificationVariableString, group_keys=False).apply(lambda x: x.sample(n=int(round((strataDict.get(x.name)/100)*bootstrapModelSize)), replace=True, random_state=n))
+	sampleToConcat = training_data.groupby(stratificationVariableString, group_keys=False).apply(lambda x: x.sample(n=int(round((strataDict.get(x.name)/100)*bootstrapModelSize)), replace=True, random_state=n))
 	sampleToConcat['bootstrapIteration'] = n
 	stratSample = pd.concat([stratSample, sampleToConcat])
 
@@ -896,7 +896,7 @@ def assessExtrapolation(fcOfInterest, propOfVariance):
 	return finalImageToExport
 
 # PCA interpolation-extrapolation image
-PCA_int_ext = assessExtrapolation(preppedCollection[covariateList], propOfVariance).rename('PCA_pct_int_ext')
+PCA_int_ext = assessExtrapolation(training_data[covariateList], propOfVariance).rename('PCA_pct_int_ext')
 
 ##################################################################################################################################################################
 # Final image export
@@ -936,10 +936,10 @@ print('Image export task started, moving on')
 # !! NOTE: this is a fairly computatinally intensive excercise, so there are some precautions to take to ensure servers aren't overloaded
 # !! This operaion SHOULD NOT be performed on the entire dataset
 # Set number of random points to test
-if preppedCollection.shape[0] > 1000:
+if training_data.shape[0] > 1000:
 	n_points = 1000
 else:
-	n_points = preppedCollection.shape[0]
+	n_points = training_data.shape[0]
 
 # Set number of repetitions
 n_reps = 10
