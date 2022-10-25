@@ -19,12 +19,12 @@ ee.Initialize()
 ####################################################################################################################################################################
 # Configuration and project-specific settings
 ####################################################################################################################################################################
-# Input the name of the username that serves as the home folder for asset storage
-usernameFolderString = ''
+# Your GEE username
+usernameGEE = ''
 
-# Input the Cloud Storage Bucket that will hold the bootstrap collections when uploading them to Earth Engine
+# Your Cloud Storage Bucket name
 # !! This bucket should be pre-created before running this script
-bucketOfInterest = ''
+GCBbucketname = ''
 
 # Specify file name of raw point collection (without extension); must be a csv file; don't include '.csv'
 titleOfRawPointCollection = ''
@@ -32,7 +32,7 @@ titleOfRawPointCollection = ''
 # Input the name of the classification property
 classProperty = ''
 
-# Input the name of the project folder inside which all of the assets will be stored
+# Input the name of the project folder inside GEE which all of the assets will be stored
 # This folder will be generated automatically in GEE
 projectFolder = ''
 
@@ -40,16 +40,16 @@ projectFolder = ''
 latString = 'latitude'
 longString = 'longitude'
 
-# Name of a local folder holding input data
+# Path to local directory holding input data
 holdingFolder = ''
 
-# Name of a local folder for output data
+# Path to local direcotry for output data
 outputFolder = ''
 
 # Create directory to hold training data
 Path(outputFolder).mkdir(parents=True, exist_ok=True)
 
-# Path to location of ee and gsutil python dependencies
+# Local path of earthengine-api (ee) and gsutil python dependencies
 bashFunction_EarthEngine = ''
 bashFunctionGSUtil = ''
 
@@ -159,7 +159,7 @@ cvFoldString = 'CV_Fold'
 # Input the title of the CSV that will hold all of the data that has been given a CV fold assignment
 titleOfCSVWithCVAssignments = classProperty+"_training_data"
 
-assetIDForCVAssignedColl = 'users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'_training_data'
+assetIDForCVAssignedColl = 'users/'+usernameGEE+'/'+projectFolder+'/'+classProperty+'_training_data'
 
 ####################################################################################################################################################################
 # Bootstrap settings
@@ -211,7 +211,7 @@ arglist_preEEUploadTable = ['upload','table']
 arglist_initEEUploadTable = ['--x_column', longString, '--y_column', latString, '--crs', CRStoUse]
 arglist_postEEUploadTable = ['--x_column', 'Pixel_Long', '--y_column', 'Pixel_Lat']
 arglist_preGSUtilUploadFile = ['cp']
-formattedBucketOI = 'gs://'+bucketOfInterest
+formattedBucketOI = 'gs://'+GCBbucketname
 assetIDStringPrefix = '--asset_id='
 arglist_CreateCollection = ['create','collection']
 arglist_CreateFolder = ['create','folder']
@@ -369,7 +369,7 @@ def computeCVAccuracyAndRMSE(featureWithClassifier):
 # Start of pipeline
 ####################################################################################################################################################################
 # Check if FC is already present, if not perform data aggregation and upload
-files_present = subprocess.run(bashCommandList_ls+['users/'+usernameFolderString+'/'+projectFolder], stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
+files_present = subprocess.run(bashCommandList_ls+['users/'+usernameGEE+'/'+projectFolder], stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
 files_present = [fileName.replace('projects/earthengine-legacy/assets/', '') for fileName in files_present]
 
 if (assetIDForCVAssignedColl in files_present):
@@ -385,7 +385,7 @@ else:
 	####################################################################################################################################################################
 
 	# Turn the folder string into an assetID and perform the folder creation
-	assetIDToCreate_Folder = 'users/'+usernameFolderString+'/'+projectFolder
+	assetIDToCreate_Folder = 'users/'+usernameGEE+'/'+projectFolder
 	print(assetIDToCreate_Folder,'being created...')
 
 	# Create the folder within Earth Engine
@@ -433,7 +433,7 @@ else:
 	print('Everything is uploaded moving on...')
 
 	# Upload the file into Earth Engine as a table asset
-	assetIDForSampling = 'users/'+usernameFolderString+'/'+projectFolder+'/'+titleOfRawPointCollection
+	assetIDForSampling = 'users/'+usernameGEE+'/'+projectFolder+'/'+titleOfRawPointCollection
 	earthEngineUploadTableCommands = [bashFunction_EarthEngine]+arglist_preEEUploadTable+[assetIDStringPrefix+assetIDForSampling]+[formattedBucketOI+'/'+titleOfRawPointCollection+'.csv']+arglist_initEEUploadTable
 	subprocess.run(earthEngineUploadTableCommands)
 	print('Upload to EE queued!')
@@ -456,7 +456,7 @@ else:
 	# Sample dataset, pixel aggregation, assign cross validation folds
 	####################################################################################################################################################################
 	# Raw dataset as FeatureCollection
-	pointCollection = ee.FeatureCollection('users/'+usernameFolderString+'/'+projectFolder+'/'+titleOfRawPointCollection)
+	pointCollection = ee.FeatureCollection('users/'+usernameGEE+'/'+projectFolder+'/'+titleOfRawPointCollection)
 
 	# Sample composite
 	sampledFC = full_composite.reduceRegions(
@@ -541,12 +541,12 @@ for vps in varsPerSplit_list:
 		classifierList.append(rf)
 
 # Check if grid search is already performed (in case of re-starting the script); otherwise perform grid search
-files_present = subprocess.run(bashCommandList_ls+['users/'+usernameFolderString+'/'+projectFolder], stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
+files_present = subprocess.run(bashCommandList_ls+['users/'+usernameGEE+'/'+projectFolder], stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
 files_present = [fileName.replace('projects/earthengine-legacy/assets/', '') for fileName in files_present]
 
 if (classProperty+'grid_search_results' in files_present):
 	# Grid search results as FC
-	grid_search_results = ee.FeatureCollection('users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'_grid_search_results')
+	grid_search_results = ee.FeatureCollection('users/'+usernameGEE+'/'+projectFolder+'/'+classProperty+'_grid_search_results')
 
 	# Get top model name
 	bestModelName = grid_search_results.limit(1, sort_acc_prop, False).first().get('cName')
@@ -567,7 +567,7 @@ else:
 	gridSearchExport = ee.batch.Export.table.toAsset(
 		collection = hyperparameter_tuning,
 		description = classProperty+'grid_search_results',
-		assetId = 'users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'grid_search_results'
+		assetId = 'users/'+usernameGEE+'/'+projectFolder+'/'+classProperty+'grid_search_results'
 	)
 	gridSearchExport.start()
 
@@ -583,7 +583,7 @@ else:
 	print('Moving on...')
 
 	# Grid search results as FC
-	grid_search_results = ee.FeatureCollection('users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'grid_search_results')
+	grid_search_results = ee.FeatureCollection('users/'+usernameGEE+'/'+projectFolder+'/'+classProperty+'grid_search_results')
 
 	# Get top model name
 	bestModelName = grid_search_results.limit(1, sort_acc_prop, False).first().get('cName')
@@ -716,7 +716,7 @@ while not all(x in subprocess.run([bashFunctionGSUtil,'ls',formattedBucketOI],st
 print('Everything is uploaded moving on...')
 
 # Upload the file into Earth Engine as a table asset
-assetIDForCVAssignedColl = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapSamples
+assetIDForCVAssignedColl = 'users/'+usernameGEE+'/'+projectFolder+'/'+bootstrapSamples
 earthEngineUploadTableCommands = [bashFunction_EarthEngine]+arglist_preEEUploadTable+[assetIDStringPrefix+assetIDForCVAssignedColl]+[formattedBucketOI+'/'+bootstrapSamples+'.csv']+arglist_postEEUploadTable
 subprocess.run(earthEngineUploadTableCommands)
 print('Upload to EE queued!')
@@ -745,7 +745,7 @@ for n in seedsToUseForBootstrapping:
 
 	# Format the title of the CSV and export it to a holding location
 	# titleOfColl = bootstrapSamples+str(n).zfill(3)
-	collectionPath = 'users/'+usernameFolderString+'/'+projectFolder+'/'+bootstrapSamples
+	collectionPath = 'users/'+usernameGEE+'/'+projectFolder+'/'+bootstrapSamples
 
 	# Load the collection from the path
 	fcToTrain = ee.FeatureCollection(collectionPath).filter(ee.Filter.eq('bootstrapIteration', n))
@@ -922,7 +922,7 @@ else:
 exportTask = ee.batch.Export.image.toAsset(
 	image = finalImageToExport.toFloat(),
 	description = classProperty+'_Bootstrapped_MultibandImage',
-	assetId = 'users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'_Bootstrapped_MultibandImage' ,
+	assetId = 'users/'+usernameGEE+'/'+projectFolder+'/'+classProperty+'_Bootstrapped_MultibandImage' ,
 	crs = CRStoUse,
 	crsTransform = '['+str(res_deg)+',0,-180,0,'+str(-res_deg)+',90]',
 	region = exportingGeometry,
@@ -1019,7 +1019,7 @@ sloo_cv = fc_toMap.map(calc_R2)
 bloo_cv_fc_export = ee.batch.Export.table.toAsset(
 	collection = sloo_cv,
 	description = classProperty+'_sloo_cv',
-	assetId = 'users/'+usernameFolderString+'/'+projectFolder+'/'+classProperty+'_sloo_cv_results'
+	assetId = 'users/'+usernameGEE+'/'+projectFolder+'/'+classProperty+'_sloo_cv_results'
 )
 
 bloo_cv_fc_export.start()
